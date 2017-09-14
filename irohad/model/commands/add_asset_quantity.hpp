@@ -46,7 +46,6 @@ namespace iroha {
       Amount amount;
 
       bool operator==(const Command& command) const override;
-      bool operator!=(const Command& command) const override;
 
       AddAssetQuantity() {}
 
