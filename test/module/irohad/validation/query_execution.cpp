@@ -101,10 +101,13 @@ void set_default_ametsuchi(MockWsvQuery &test_wsv,
   std::vector<std::string> roles = {ADMIN_ROLE};
   EXPECT_CALL(test_wsv, getRoles()).WillRepeatedly(Return(roles));
   std::vector<std::string> perms = {ADIMIN_PERM};
-  EXPECT_CALL(test_wsv, getRolePermissions(ADMIN_ROLE))
-      .WillRepeatedly(Return(perms));
   EXPECT_CALL(test_wsv, getRolePermissions(_))
       .WillRepeatedly(Return(nonstd::nullopt));
+  EXPECT_CALL(test_wsv, getRolePermissions(ADMIN_ROLE))
+      .WillRepeatedly(Return(perms));
+  auto def_asset = Asset(ASSET_ID, DOMAIN_NAME, 2);
+  EXPECT_CALL(test_wsv, getAsset(_)).WillRepeatedly(Return(nonstd::nullopt));
+  EXPECT_CALL(test_wsv, getAsset(ASSET_ID)).WillRepeatedly(Return(def_asset));
   // Test account has some amount of test assets
   auto acct_asset = iroha::model::AccountAsset();
   acct_asset.asset_id = ASSET_ID;
@@ -278,7 +281,7 @@ TEST(QueryExecutor, get_asset_info) {
   ASSERT_EQ(ASSET_ID, cast_resp->asset.asset_id);
   // TODO: add more bad test cases
 }
-/*
+
 TEST(QueryExecutor, get_roles) {
   auto wsv_queries = std::make_shared<MockWsvQuery>();
   auto block_queries = std::make_shared<MockBlockQuery>();
@@ -314,4 +317,4 @@ TEST(QueryExecutor, get_role_permissions) {
   ASSERT_EQ(ADIMIN_PERM, cast_resp->role_permissions.at(0));
   // TODO: add more test cases, i.e. bad ones
 }
- */
+

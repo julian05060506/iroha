@@ -125,10 +125,10 @@ QueryProcessingFactory::executeGetAssetInfo(const model::GetAssetInfo& query) {
     response.reason = iroha::model::ErrorResponse::NO_ASSET;
     return std::make_shared<ErrorResponse>(response);
   }
-  iroha::model::AssetResponse response;
-  response.asset = ast.value();
+  AssetResponse response;
+  response.asset = std::move(ast.value());
   response.query_hash = query.query_hash;
-  return std::make_shared<iroha::model::AssetResponse>(response);
+  return std::make_shared<AssetResponse>(response);
 }
 
 std::shared_ptr<iroha::model::QueryResponse>
@@ -142,7 +142,7 @@ QueryProcessingFactory::executeGetRoles(const model::GetRoles& query) {
   }
   RolesResponse response;
   response.query_hash = query.query_hash;
-  std::move(roles.value().begin(), roles.value().end(), response.roles.begin());
+  response.roles = std::move(roles.value());
   return std::make_shared<RolesResponse>(response);
 }
 
@@ -158,8 +158,7 @@ QueryProcessingFactory::executeGetRolePermissions(
   }
   RolePermissionsResponse response;
   response.query_hash = query.query_hash;
-  std::move(perm.value().begin(), perm.value().end(),
-            response.role_permissions.begin());
+  response.role_permissions = std::move(perm.value());
   return std::make_shared<RolePermissionsResponse>(response);
 }
 
