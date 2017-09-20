@@ -295,6 +295,36 @@ iroha::model::QueryProcessingFactory::execute(
     }
     return executeGetAccountAssetTransactions(*qry);
   }
+  if (instanceof<GetRoles>(query.get())){
+    auto qry = std::static_pointer_cast<const GetRoles>(query);
+    if(not validate(*qry)){
+      ErrorResponse response;
+      response.query_hash = qry->query_hash;
+      response.reason = ErrorResponse::STATEFUL_INVALID;
+      return std::make_shared<ErrorResponse>(response);
+    }
+    return  executeGetRoles(*qry);
+  }
+  if (instanceof<GetRolePermissions>(query.get())){
+    auto qry = std::static_pointer_cast<const GetRolePermissions>(query);
+    if(not validate(*qry)){
+      ErrorResponse response;
+      response.query_hash = qry->query_hash;
+      response.reason = ErrorResponse::STATEFUL_INVALID;
+      return std::make_shared<ErrorResponse>(response);
+    }
+    return  executeGetRolePermissions(*qry);
+  }
+  if (instanceof<GetAssetInfo>(query.get())){
+    auto qry = std::static_pointer_cast<const GetAssetInfo>(query);
+    if(not validate(*qry)){
+      ErrorResponse response;
+      response.query_hash = qry->query_hash;
+      response.reason = ErrorResponse::STATEFUL_INVALID;
+      return std::make_shared<ErrorResponse>(response);
+    }
+    return  executeGetAssetInfo(*qry);
+  }
   iroha::model::ErrorResponse response;
   response.query_hash = query->query_hash;
   response.reason = model::ErrorResponse::NOT_SUPPORTED;
