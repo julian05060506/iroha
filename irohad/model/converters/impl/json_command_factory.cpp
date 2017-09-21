@@ -43,9 +43,9 @@ namespace iroha {
         template <typename T>
         auto operator()(T &&x) {
           auto des = makeFieldDeserializer(x);
-          return nonstd::make_optional<Amount>() |
-                 des.Uint64(&Amount::int_part, "int_part") |
-                 des.Uint64(&Amount::frac_part, "frac_part");
+          return nonstd::make_optional<Amount>()
+              | des.Uint64(&Amount::int_part, "int_part")
+              | des.Uint64(&Amount::frac_part, "frac_part");
         }
       };
 
@@ -70,8 +70,8 @@ namespace iroha {
             {typeid(CreateRole), &JsonCommandFactory::serializeCreateRole},
             {typeid(GrantPermission),
              &JsonCommandFactory::serializeGrantPermission},
-            {typeid(RevokePermission), &JsonCommandFactory::serializeRevokePermission}
-        };
+            {typeid(RevokePermission),
+             &JsonCommandFactory::serializeRevokePermission}};
 
         deserializers_ = {
             {"AddAssetQuantity",
@@ -91,8 +91,8 @@ namespace iroha {
             {"CreateRole", &JsonCommandFactory::deserializeCreateRole},
             {"GrantPermission",
              &JsonCommandFactory::deserializeGrantPermission},
-            {"RevokePermission", &JsonCommandFactory::deserializeRevokePermission}
-        };
+            {"RevokePermission",
+             &JsonCommandFactory::deserializeRevokePermission}};
       }
 
       // AddAssetQuantity
@@ -125,10 +125,10 @@ namespace iroha {
       optional_ptr<Command> JsonCommandFactory::deserializeAddAssetQuantity(
           const Value &document) {
         auto des = makeFieldDeserializer(document);
-        return make_optional_ptr<AddAssetQuantity>() |
-               des.String(&AddAssetQuantity::account_id, "account_id") |
-               des.String(&AddAssetQuantity::asset_id, "asset_id") |
-               des.Object(&AddAssetQuantity::amount, "amount") | toCommand;
+        return make_optional_ptr<AddAssetQuantity>()
+            | des.String(&AddAssetQuantity::account_id, "account_id")
+            | des.String(&AddAssetQuantity::asset_id, "asset_id")
+            | des.Object(&AddAssetQuantity::amount, "amount") | toCommand;
       }
 
       // AddPeer
@@ -151,9 +151,9 @@ namespace iroha {
       optional_ptr<Command> JsonCommandFactory::deserializeAddPeer(
           const Value &document) {
         auto des = makeFieldDeserializer(document);
-        return make_optional_ptr<AddPeer>() |
-               des.String(&AddPeer::peer_key, "peer_key") |
-               des.String(&AddPeer::address, "address") | toCommand;
+        return make_optional_ptr<AddPeer>()
+            | des.String(&AddPeer::peer_key, "peer_key")
+            | des.String(&AddPeer::address, "address") | toCommand;
       }
 
       // AddSignatory
@@ -176,9 +176,9 @@ namespace iroha {
       optional_ptr<Command> JsonCommandFactory::deserializeAddSignatory(
           const Value &document) {
         auto des = makeFieldDeserializer(document);
-        return make_optional_ptr<AddSignatory>() |
-               des.String(&AddSignatory::account_id, "account_id") |
-               des.String(&AddSignatory::pubkey, "pubkey") | toCommand;
+        return make_optional_ptr<AddSignatory>()
+            | des.String(&AddSignatory::account_id, "account_id")
+            | des.String(&AddSignatory::pubkey, "pubkey") | toCommand;
       }
 
       // CreateAccount
@@ -203,10 +203,10 @@ namespace iroha {
       optional_ptr<Command> JsonCommandFactory::deserializeCreateAccount(
           const Value &document) {
         auto des = makeFieldDeserializer(document);
-        return make_optional_ptr<CreateAccount>() |
-               des.String(&CreateAccount::account_name, "account_name") |
-               des.String(&CreateAccount::domain_id, "domain_id") |
-               des.String(&CreateAccount::pubkey, "pubkey") | toCommand;
+        return make_optional_ptr<CreateAccount>()
+            | des.String(&CreateAccount::account_name, "account_name")
+            | des.String(&CreateAccount::domain_id, "domain_id")
+            | des.String(&CreateAccount::pubkey, "pubkey") | toCommand;
       }
 
       // CreateAsset
@@ -229,10 +229,10 @@ namespace iroha {
       optional_ptr<Command> JsonCommandFactory::deserializeCreateAsset(
           const Value &document) {
         auto des = makeFieldDeserializer(document);
-        return make_optional_ptr<CreateAsset>() |
-               des.String(&CreateAsset::asset_name, "asset_name") |
-               des.String(&CreateAsset::domain_id, "domain_id") |
-               des.Uint(&CreateAsset::precision, "precision") | toCommand;
+        return make_optional_ptr<CreateAsset>()
+            | des.String(&CreateAsset::asset_name, "asset_name")
+            | des.String(&CreateAsset::domain_id, "domain_id")
+            | des.Uint(&CreateAsset::precision, "precision") | toCommand;
       }
 
       // CreateDomain
@@ -254,9 +254,8 @@ namespace iroha {
       optional_ptr<Command> JsonCommandFactory::deserializeCreateDomain(
           const Value &document) {
         auto des = makeFieldDeserializer(document);
-        return make_optional_ptr<CreateDomain>() |
-               des.String(&CreateDomain::domain_name, "domain_name") |
-               toCommand;
+        return make_optional_ptr<CreateDomain>()
+            | des.String(&CreateDomain::domain_name, "domain_name") | toCommand;
       }
 
       // RemoveSignatory
@@ -280,9 +279,9 @@ namespace iroha {
       optional_ptr<Command> JsonCommandFactory::deserializeRemoveSignatory(
           const Value &document) {
         auto des = makeFieldDeserializer(document);
-        return make_optional_ptr<RemoveSignatory>() |
-               des.String(&RemoveSignatory::account_id, "account_id") |
-               des.String(&RemoveSignatory::pubkey, "pubkey") | toCommand;
+        return make_optional_ptr<RemoveSignatory>()
+            | des.String(&RemoveSignatory::account_id, "account_id")
+            | des.String(&RemoveSignatory::pubkey, "pubkey") | toCommand;
       }
 
       // SetAccountPermissions
@@ -345,35 +344,35 @@ namespace iroha {
       JsonCommandFactory::deserializeSetAccountPermissions(
           const Value &document) {
         auto des = makeFieldDeserializer(document);
-        return make_optional_ptr<SetAccountPermissions>() |
-               des.String(&SetAccountPermissions::account_id, "account_id") |
-               des.Object(
-                   &SetAccountPermissions::new_permissions, "new_permissions",
-                   [](auto permissions) {
-                     auto des = makeFieldDeserializer(permissions);
-                     return nonstd::make_optional<Account::Permissions>() |
-                            des.Bool(&Account::Permissions::add_signatory,
-                                     "add_signatory") |
-                            des.Bool(&Account::Permissions::can_transfer,
-                                     "can_transfer") |
-                            des.Bool(&Account::Permissions::create_accounts,
-                                     "create_accounts") |
-                            des.Bool(&Account::Permissions::create_assets,
-                                     "create_assets") |
-                            des.Bool(&Account::Permissions::create_domains,
-                                     "create_domains") |
-                            des.Bool(&Account::Permissions::issue_assets,
-                                     "issue_assets") |
-                            des.Bool(&Account::Permissions::read_all_accounts,
-                                     "read_all_accounts") |
-                            des.Bool(&Account::Permissions::remove_signatory,
-                                     "remove_signatory") |
-                            des.Bool(&Account::Permissions::set_permissions,
-                                     "set_permissions") |
-                            des.Bool(&Account::Permissions::set_quorum,
-                                     "set_quorum");
-                   }) |
-               toCommand;
+        return make_optional_ptr<SetAccountPermissions>()
+            | des.String(&SetAccountPermissions::account_id, "account_id")
+            | des.Object(
+                  &SetAccountPermissions::new_permissions, "new_permissions",
+                  [](auto permissions) {
+                    auto des = makeFieldDeserializer(permissions);
+                    return nonstd::make_optional<Account::Permissions>()
+                        | des.Bool(&Account::Permissions::add_signatory,
+                                   "add_signatory")
+                        | des.Bool(&Account::Permissions::can_transfer,
+                                   "can_transfer")
+                        | des.Bool(&Account::Permissions::create_accounts,
+                                   "create_accounts")
+                        | des.Bool(&Account::Permissions::create_assets,
+                                   "create_assets")
+                        | des.Bool(&Account::Permissions::create_domains,
+                                   "create_domains")
+                        | des.Bool(&Account::Permissions::issue_assets,
+                                   "issue_assets")
+                        | des.Bool(&Account::Permissions::read_all_accounts,
+                                   "read_all_accounts")
+                        | des.Bool(&Account::Permissions::remove_signatory,
+                                   "remove_signatory")
+                        | des.Bool(&Account::Permissions::set_permissions,
+                                   "set_permissions")
+                        | des.Bool(&Account::Permissions::set_quorum,
+                                   "set_quorum");
+                  })
+            | toCommand;
       }
 
       // SetAccountQuorum
@@ -395,9 +394,9 @@ namespace iroha {
       optional_ptr<Command> JsonCommandFactory::deserializeSetQuorum(
           const Value &document) {
         auto des = makeFieldDeserializer(document);
-        return make_optional_ptr<SetQuorum>() |
-               des.String(&SetQuorum::account_id, "account_id") |
-               des.Uint(&SetQuorum::new_quorum, "new_quorum") | toCommand;
+        return make_optional_ptr<SetQuorum>()
+            | des.String(&SetQuorum::account_id, "account_id")
+            | des.Uint(&SetQuorum::new_quorum, "new_quorum") | toCommand;
       }
 
       // TransferAsset
@@ -433,12 +432,12 @@ namespace iroha {
       optional_ptr<Command> JsonCommandFactory::deserializeTransferAsset(
           const Value &document) {
         auto des = makeFieldDeserializer(document);
-        return make_optional_ptr<TransferAsset>() |
-               des.String(&TransferAsset::src_account_id, "src_account_id") |
-               des.String(&TransferAsset::dest_account_id, "dest_account_id") |
-               des.String(&TransferAsset::asset_id, "asset_id") |
-               des.String(&TransferAsset::description, "description") |
-               des.Object(&TransferAsset::amount, "amount") | toCommand;
+        return make_optional_ptr<TransferAsset>()
+            | des.String(&TransferAsset::src_account_id, "src_account_id")
+            | des.String(&TransferAsset::dest_account_id, "dest_account_id")
+            | des.String(&TransferAsset::asset_id, "asset_id")
+            | des.String(&TransferAsset::description, "description")
+            | des.Object(&TransferAsset::amount, "amount") | toCommand;
       }
 
       rapidjson::Document JsonCommandFactory::serializeAppendRole(
@@ -458,9 +457,9 @@ namespace iroha {
       optional_ptr<Command> JsonCommandFactory::deserializeAppendRole(
           const rapidjson::Value &document) {
         auto des = makeFieldDeserializer(document);
-        return make_optional_ptr<AppendRole>() |
-               des.String(&AppendRole::account_id, "account_id") |
-               des.String(&AppendRole::role_name, "role_name") | toCommand;
+        return make_optional_ptr<AppendRole>()
+            | des.String(&AppendRole::account_id, "account_id")
+            | des.String(&AppendRole::role_name, "role_name") | toCommand;
       }
 
       rapidjson::Document JsonCommandFactory::serializeCreateRole(
@@ -479,8 +478,8 @@ namespace iroha {
       optional_ptr<Command> JsonCommandFactory::deserializeCreateRole(
           const rapidjson::Value &document) {
         auto des = makeFieldDeserializer(document);
-        return make_optional_ptr<CreateRole>() |
-               des.String(&CreateRole::role_name, "role_name") | toCommand;
+        return make_optional_ptr<CreateRole>()
+            | des.String(&CreateRole::role_name, "role_name") | toCommand;
       }
 
       rapidjson::Document JsonCommandFactory::serializeGrantPermission(
@@ -499,11 +498,10 @@ namespace iroha {
       optional_ptr<Command> JsonCommandFactory::deserializeGrantPermission(
           const rapidjson::Value &document) {
         auto des = makeFieldDeserializer(document);
-        return make_optional_ptr<GrantPermission>() |
-               des.String(&GrantPermission::account_id, "account_id") |
-               des.String(&GrantPermission::permission_name,
-                          "permission_name") |
-               toCommand;
+        return make_optional_ptr<GrantPermission>()
+            | des.String(&GrantPermission::account_id, "account_id")
+            | des.String(&GrantPermission::permission_name, "permission_name")
+            | toCommand;
       }
 
       rapidjson::Document JsonCommandFactory::serializeRevokePermission(
@@ -523,9 +521,9 @@ namespace iroha {
           const rapidjson::Value &document) {
         auto des = makeFieldDeserializer(document);
         return make_optional_ptr<RevokePermission>()
-            |  des.String(&RevokePermission::account_id, "account_id")
-            |  des.String(&RevokePermission::permission_name,"permission_name")
-            |  toCommand;
+            | des.String(&RevokePermission::account_id, "account_id")
+            | des.String(&RevokePermission::permission_name, "permission_name")
+            | toCommand;
       }
 
       // Abstract
@@ -537,9 +535,9 @@ namespace iroha {
 
       optional_ptr<model::Command>
       JsonCommandFactory::deserializeAbstractCommand(const Value &document) {
-        return makeFieldDeserializer(document).String("command_type") |
-               makeOptionalGet(deserializers_) |
-               makeMethodInvoke(*this, document);
+        return makeFieldDeserializer(document).String("command_type")
+            | makeOptionalGet(deserializers_)
+            | makeMethodInvoke(*this, document);
       }
     }  // namespace converters
   }    // namespace model
