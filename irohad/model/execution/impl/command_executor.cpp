@@ -84,15 +84,15 @@ namespace iroha {
       log_ = logger::log("CreateRoleExecutor");
     }
 
-bool CreateRoleExecutor::execute(const Command &command,
-                                 ametsuchi::WsvQuery &queries,
-                                 ametsuchi::WsvCommand &commands) {
-  auto cmd_value = static_cast<const CreateRole &>(command);
+    bool CreateRoleExecutor::execute(const Command &command,
+                                     ametsuchi::WsvQuery &queries,
+                                     ametsuchi::WsvCommand &commands) {
+      auto cmd_value = static_cast<const CreateRole &>(command);
 
-  return commands.insertRole(cmd_value.role_name)
-      and commands.insertRolePermissions(cmd_value.role_name,
-                                         cmd_value.permissions);
-}
+      return commands.insertRole(cmd_value.role_name)
+          and commands.insertRolePermissions(cmd_value.role_name,
+                                             cmd_value.permissions);
+    }
 
     bool CreateRoleExecutor::hasPermissions(const Command &command,
                                             ametsuchi::WsvQuery &queries,
@@ -102,8 +102,8 @@ bool CreateRoleExecutor::execute(const Command &command,
 
     bool CreateRoleExecutor::isValid(const Command &command,
                                      ametsuchi::WsvQuery &queries) {
-      // TODO: check. Add checks on naming of the role
-      // TODO: add check on what permission can role have
+      // TODO: check. Add checks on naming of the role (no system symbols, lower-case, regex)
+      // TODO: you can't create role more than you have
       return true;
     }
 
@@ -134,7 +134,7 @@ bool CreateRoleExecutor::execute(const Command &command,
 
     bool GrantPermissionExecutor::isValid(const Command &command,
                                           ametsuchi::WsvQuery &queries) {
-      // TODO: check. Add checks on naming of the role
+      // TODO: no additional checks ?
       return true;
     }
 
@@ -167,11 +167,11 @@ bool CreateRoleExecutor::execute(const Command &command,
 
     bool RevokePermissionExecutor::isValid(const Command &command,
                                            ametsuchi::WsvQuery &queries) {
-      // TODO: check. Add checks on naming of the role
+      // TODO: no checks needed ?
       return true;
     }
 
-    // ----------------------------| AddAssetQuantity|-----------------------------
+    // ----------------------------|AddAssetQuantity|-----------------------------
 
     AddAssetQuantityExecutor::AddAssetQuantityExecutor() {
       log_ = logger::log("AddAssetQuantityExecutor");
@@ -228,21 +228,20 @@ bool CreateRoleExecutor::execute(const Command &command,
       auto cmd_value = static_cast<const AddAssetQuantity &>(command);
       // Check if creator has MoneyCreator permission.
       // One can only add to his/her account
-      return
-          creator.account_id == cmd_value.account_id and
-          checkAccountRolePermission(creator.account_id, queries, can_add_asset_qty);
+      // TODO: In future: Separate money creation for distinct assets
+      return creator.account_id == cmd_value.account_id
+          and checkAccountRolePermission(creator.account_id, queries,
+                                         can_add_asset_qty);
     }
 
     bool AddAssetQuantityExecutor::isValid(const Command &command,
                                            WsvQuery &queries) {
       auto add_asset_quantity = static_cast<const AddAssetQuantity &>(command);
       // Amount must be in some meaningful range
-      return
-
-           (add_asset_quantity.amount.int_part > 0 or
-              add_asset_quantity.amount.frac_part > 0) and
-             add_asset_quantity.amount.int_part <
-                 (std::numeric_limits<uint32_t>::max)();
+      return (add_asset_quantity.amount.int_part > 0
+              or add_asset_quantity.amount.frac_part > 0)
+          and add_asset_quantity.amount.int_part
+          < (std::numeric_limits<uint32_t>::max)();
     }
 
     // --------------------------|AddPeer|------------------------------
@@ -297,22 +296,22 @@ bool CreateRoleExecutor::execute(const Command &command,
       return
           // Case 1. When command creator wants to add signatory to their
           // account and he has permission CanAddSignatory
-          (add_signatory.account_id == creator.account_id  and
-              checkAccountRolePermission(creator.account_id, queries, can_add_signatory))
+          (add_signatory.account_id == creator.account_id
+           and checkAccountRolePermission(creator.account_id, queries,
+                                          can_add_signatory))
           or
           // Case 2. Creator has granted permission for it
-          (queries.hasAccountGrantablePermission(creator.account_id,
-                                                 add_signatory.account_id,
-                                                 can_add_signatory));
+          (queries.hasAccountGrantablePermission(
+              creator.account_id, add_signatory.account_id, can_add_signatory));
     }
 
     bool AddSignatoryExecutor::isValid(const Command &command,
                                        ametsuchi::WsvQuery &queries) {
-      // TODO:
+      // TODO: no checks ?
       return true;
     }
 
-    // ------------------------------| CreateAccount|------------------------------
+    // ------------------------------|CreateAccount|------------------------------
     CreateAccountExecutor::CreateAccountExecutor() {
       log_ = logger::log("CreateAccountExecutor");
     }
@@ -330,11 +329,11 @@ bool CreateRoleExecutor::execute(const Command &command,
       account.quorum = 1;
       Account::Permissions permissions = iroha::model::Account::Permissions();
       account.permissions = permissions;
-
-      return commands.insertSignatory(create_account.pubkey) and
-             commands.insertAccount(account) and
-             commands.insertAccountSignatory(account.account_id,
-                                             create_account.pubkey);
+      // TODO: Add some initial role(default) to account
+      return commands.insertSignatory(create_account.pubkey)
+          and commands.insertAccount(account)
+          and commands.insertAccountSignatory(account.account_id,
+                                              create_account.pubkey);
     }
 
     bool CreateAccountExecutor::hasPermissions(const Command &command,
@@ -350,8 +349,8 @@ bool CreateRoleExecutor::execute(const Command &command,
 
       return
           // Name is within some range
-          not create_account.account_name.empty() and
-          create_account.account_name.size() < 8 and
+          not create_account.account_name.empty()
+          and create_account.account_name.size() < 8 and
           // Account must be well-formed (no system symbols)
           std::all_of(std::begin(create_account.account_name),
                       std::end(create_account.account_name),
@@ -399,8 +398,7 @@ bool CreateRoleExecutor::execute(const Command &command,
                       [](char c) { return std::isalnum(c); });
     }
 
-    // ------------------------------| CreateDomain
-    // |-------------------------------
+    // ------------------------|CreateDomain|---------------------------
 
     CreateDomainExecutor::CreateDomainExecutor() {
       log_ = logger::log("CreateDomainExecutor");
@@ -413,6 +411,7 @@ bool CreateRoleExecutor::execute(const Command &command,
 
       Domain new_domain;
       new_domain.domain_id = create_domain.domain_name;
+      // TODO: Add default role in the domain
       // The insert will fail if domain already exist
       return commands.insertDomain(new_domain);
     }
@@ -462,22 +461,25 @@ bool CreateRoleExecutor::execute(const Command &command,
       auto remove_signatory = static_cast<const RemoveSignatory &>(command);
 
       // Two cases possible.
-      // 1. Creator removes signatory from their account, and he must have permission on it
-      // 2. Creator has granted permission on removal
+
       return
-          (creator.account_id == remove_signatory.account_id and
-           checkAccountRolePermission(creator.account_id, queries, can_remove_signatory)) or
-              (queries.hasAccountGrantablePermission(creator.account_id,
-                                                     remove_signatory.account_id,
-                                                     can_remove_signatory));
+          // 1. Creator removes signatory from their account, and he must have
+          // permission on it
+          (creator.account_id == remove_signatory.account_id
+           and checkAccountRolePermission(creator.account_id, queries,
+                                          can_remove_signatory))
+          // 2. Creator has granted permission on removal
+          or (queries.hasAccountGrantablePermission(creator.account_id,
+                                                    remove_signatory.account_id,
+                                                    can_remove_signatory));
     }
 
     bool RemoveSignatoryExecutor::isValid(const Command &command,
                                           ametsuchi::WsvQuery &queries) {
       auto remove_signatory = static_cast<const RemoveSignatory &>(command);
 
-      auto account = queries.getAccount(remove_signatory.account_id);
-      return account.has_value();
+
+      return true;
     }
 
     // ----------------- SetAccountPermissions -----------------
@@ -537,14 +539,15 @@ bool CreateRoleExecutor::execute(const Command &command,
                                            ametsuchi::WsvQuery &queries,
                                            const Account &creator) {
       auto set_quorum = static_cast<const SetQuorum &>(command);
-      // 1. Creator set quorum for his account -> must have permission
-      // 2. Creator has granted permission on it
+
       return
-          (creator.account_id == set_quorum.account_id and
-              checkAccountRolePermission(creator.account_id, queries, can_set_quorum)) or
-              (queries.hasAccountGrantablePermission(creator.account_id,
-                                                     set_quorum.account_id,
-                                                     can_set_quorum));
+          // 1. Creator set quorum for his account -> must have permission
+          (creator.account_id == set_quorum.account_id
+           and checkAccountRolePermission(creator.account_id, queries,
+                                          can_set_quorum))
+          // 2. Creator has granted permission on it
+          or (queries.hasAccountGrantablePermission(
+                 creator.account_id, set_quorum.account_id, can_set_quorum));
     }
 
     bool SetQuorumExecutor::isValid(const Command &command,
