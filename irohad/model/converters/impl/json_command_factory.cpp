@@ -71,7 +71,8 @@ namespace iroha {
             {typeid(GrantPermission),
              &JsonCommandFactory::serializeGrantPermission},
             {typeid(RevokePermission),
-             &JsonCommandFactory::serializeRevokePermission}};
+             &JsonCommandFactory::serializeRevokePermission}
+        };
 
         deserializers_ = {
             {"AddAssetQuantity",
@@ -92,7 +93,8 @@ namespace iroha {
             {"GrantPermission",
              &JsonCommandFactory::deserializeGrantPermission},
             {"RevokePermission",
-             &JsonCommandFactory::deserializeRevokePermission}};
+             &JsonCommandFactory::deserializeRevokePermission}
+        };
       }
 
       // AddAssetQuantity
@@ -255,7 +257,8 @@ namespace iroha {
           const Value &document) {
         auto des = makeFieldDeserializer(document);
         return make_optional_ptr<CreateDomain>()
-            | des.String(&CreateDomain::domain_name, "domain_name") | toCommand;
+            | des.String(&CreateDomain::domain_name, "domain_name")
+            | toCommand;
       }
 
       // RemoveSignatory
@@ -281,7 +284,8 @@ namespace iroha {
         auto des = makeFieldDeserializer(document);
         return make_optional_ptr<RemoveSignatory>()
             | des.String(&RemoveSignatory::account_id, "account_id")
-            | des.String(&RemoveSignatory::pubkey, "pubkey") | toCommand;
+            | des.String(&RemoveSignatory::pubkey, "pubkey")
+            | toCommand;
       }
 
       // SetAccountPermissions
@@ -396,7 +400,8 @@ namespace iroha {
         auto des = makeFieldDeserializer(document);
         return make_optional_ptr<SetQuorum>()
             | des.String(&SetQuorum::account_id, "account_id")
-            | des.Uint(&SetQuorum::new_quorum, "new_quorum") | toCommand;
+            | des.Uint(&SetQuorum::new_quorum, "new_quorum")
+            | toCommand;
       }
 
       // TransferAsset
@@ -437,7 +442,8 @@ namespace iroha {
             | des.String(&TransferAsset::dest_account_id, "dest_account_id")
             | des.String(&TransferAsset::asset_id, "asset_id")
             | des.String(&TransferAsset::description, "description")
-            | des.Object(&TransferAsset::amount, "amount") | toCommand;
+            | des.Object(&TransferAsset::amount, "amount")
+            | toCommand;
       }
 
       rapidjson::Document JsonCommandFactory::serializeAppendRole(
@@ -459,7 +465,8 @@ namespace iroha {
         auto des = makeFieldDeserializer(document);
         return make_optional_ptr<AppendRole>()
             | des.String(&AppendRole::account_id, "account_id")
-            | des.String(&AppendRole::role_name, "role_name") | toCommand;
+            | des.String(&AppendRole::role_name, "role_name")
+            | toCommand;
       }
 
       rapidjson::Document JsonCommandFactory::serializeCreateRole(
@@ -472,14 +479,37 @@ namespace iroha {
         document.SetObject();
         document.AddMember("command_type", "CreateRole", allocator);
         document.AddMember("role_name", cmd->role_name, allocator);
+        Value perms;
+        perms.SetArray();
+        for (auto perm: cmd->permissions){
+          Value perm_value;
+          perm_value.Set(perm, allocator);
+          perms.PushBack(perm_value, allocator);
+        }
+        document.AddMember("permissions", perms, allocator);
         return document;
       }
 
       optional_ptr<Command> JsonCommandFactory::deserializeCreateRole(
           const rapidjson::Value &document) {
-        auto des = makeFieldDeserializer(document);
-        return make_optional_ptr<CreateRole>()
-            | des.String(&CreateRole::role_name, "role_name") | toCommand;
+        // TODO: hard to do with current scheme, takes more time and effort to
+        // get into current implementation. Consider refactoring
+        if (document.HasMember("role_name") and
+            document["role_name"].IsString() and
+            document.HasMember("permissions") and
+            document["permissions"].IsArray()) {
+          std::vector<std::string> perms;
+          for (auto& v: document["permissions"].GetArray()){
+            if (not v.IsString()){
+              return nonstd::nullopt;
+            }
+            perms.push_back(v.GetString());
+          }
+          auto role_name = document["role_name"].GetString();
+          return make_optional_ptr<CreateRole>(role_name, perms)
+              |  toCommand;
+        }
+        return nonstd::nullopt;
       }
 
       rapidjson::Document JsonCommandFactory::serializeGrantPermission(
