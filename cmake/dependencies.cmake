@@ -83,6 +83,15 @@ find_package(rxcpp)
 find_package(tbb)
 
 ##########################
-# boost multiprecision   #
+#         boost          #
 ##########################
 find_package(Boost REQUIRED)
+
+
+##########################
+#    google benchmark    #
+##########################
+if(BENCHMARK)
+  message(STATUS "google benchmark enabled")
+  find_package(benchmark)
+endif()
