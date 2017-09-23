@@ -20,11 +20,12 @@
 
 #include <array>
 #include <cstdio>
+#include <iomanip>
+#include <sstream>
 #include <string>
 #include <typeinfo>
 #include <vector>
-#include <sstream>
-#include <iomanip>
+#include "operators.hpp"
 
 #include <nonstd/optional.hpp>
 
@@ -53,7 +54,6 @@ namespace iroha {
    */
   template <size_t size_>
   class blob_t : public std::array<byte_t, size_> {
-
    public:
     /**
      * In compile-time returns size of current blob.
@@ -82,8 +82,8 @@ namespace iroha {
       uint8_t front, back;
       auto ptr = this->data();
       for (uint32_t i = 0, k = 0; i < size_; i++) {
-        front = (uint8_t) (ptr[i] & 0xF0) >> 4;
-        back = (uint8_t) (ptr[i] & 0xF);
+        front = (uint8_t)(ptr[i] & 0xF0) >> 4;
+        back = (uint8_t)(ptr[i] & 0xF);
         res[k++] = code[front];
         res[k++] = code[back];
       }
@@ -117,7 +117,7 @@ namespace iroha {
   inline std::string bytestringToHexstring(const std::string &str) {
     std::stringstream ss;
     ss << std::hex << std::setfill('0');
-    for(const auto &c : str) {
+    for (const auto &c : str) {
       ss << std::setw(2) << static_cast<int>(c);
     }
     return ss.str();
@@ -145,32 +145,6 @@ namespace iroha {
       }
     }
     return result;
-  }
-
-  /**
-   * Bind operator. If argument has value, dereferences argument and calls
-   * given function, which should return wrapped value
-   * operator| is used since it has to be binary and left-associative
-   *
-   * nonstd::optional<int> f();
-   * nonstd::optional<double> g(int);
-   *
-   * nonstd::optional<double> d = f()
-   *    | g;
-   *
-   * @tparam T - monadic type
-   * @tparam Transform - transform function type
-   * @param t - monadic value
-   * @param f - function, which takes dereferenced value, and returns
-   * wrapped value
-   * @return monadic value, which can be of another type
-   */
-  template <typename T, typename Transform>
-  auto operator|(T t, Transform f) -> decltype(f(*t)) {
-    if (t) {
-      return f(*t);
-    }
-    return {};
   }
 
   /**
@@ -211,9 +185,7 @@ namespace iroha {
    */
   template <typename T, typename... Args>
   auto makeMethodInvoke(T &object, Args &&... args) {
-    return [&](auto f) {
-      return (object.*f)(std::forward<Args>(args)...);
-    };
+    return [&](auto f) { return (object.*f)(std::forward<Args>(args)...); };
   }
 
   /**
@@ -241,7 +213,7 @@ namespace iroha {
    * @param member - pointer to member in object
    * @return object with deserialized member on success, nullopt otherwise
    */
-  template <template<typename C> class P, typename V, typename B>
+  template <template <typename C> class P, typename V, typename B>
   auto assignObjectField(P<B> object, V B::*member) {
     return [=](auto value) mutable {
       (*object).*member = value;
@@ -298,9 +270,7 @@ namespace iroha {
       return this->int_part == rhs.int_part && this->frac_part == rhs.frac_part;
     }
 
-    bool operator!=(const Amount &rhs) const {
-      return !operator==(rhs);
-    }
+    bool operator!=(const Amount &rhs) const { return !operator==(rhs); }
 
    private:
     int ipow(int base, int exp) {
@@ -317,12 +287,12 @@ namespace iroha {
 
   // check the type of the derived class
   template <typename Base, typename T>
-  inline bool instanceof(const T *ptr) {
+  inline bool instanceof (const T *ptr) {
     return typeid(Base) == typeid(*ptr);
   }
 
   template <typename Base, typename T>
-  inline bool instanceof(const T &ptr) {
+  inline bool instanceof (const T &ptr) {
     return typeid(Base) == typeid(ptr);
   }
 
