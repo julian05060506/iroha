@@ -23,7 +23,8 @@ namespace iroha {
   namespace model {
     namespace converters {
 
-      protocol::Block PbBlockFactory::serialize(model::Block const&block) {
+      protocol::Block PbBlockFactory::serialize(
+          model::Block const& block) const {
         protocol::Block pb_block{};
 
         auto pl = pb_block.mutable_payload();
@@ -47,7 +48,8 @@ namespace iroha {
         return pb_block;
       }
 
-      model::Block PbBlockFactory::deserialize(protocol::Block const&pb_block) {
+      model::Block PbBlockFactory::deserialize(
+          protocol::Block const& pb_block) const {
         model::Block block{};
         const auto& pl = pb_block.payload();
 
@@ -65,8 +67,8 @@ namespace iroha {
 
         for (const auto& pb_sig : pb_block.signatures()) {
           model::Signature sig;
-          sig.signature = sig_t::from_string(pb_sig.signature());
-          sig.pubkey = pubkey_t::from_string(pb_sig.pubkey());
+          sig.signature = ed25519::sig_t::from_string(pb_sig.signature());
+          sig.pubkey = ed25519::pubkey_t::from_string(pb_sig.pubkey());
           block.sigs.push_back(std::move(sig));
         }
 

@@ -62,8 +62,8 @@ namespace iroha {
 
         for (const auto &pb_sig : pb_tx.signature()) {
           model::Signature sig{};
-          sig.pubkey = pubkey_t::from_string(pb_sig.pubkey());
-          sig.signature =  sig_t::from_string(pb_sig.signature());
+          sig.pubkey = ed25519::pubkey_t::from_string(pb_sig.pubkey());
+          sig.signature =  ed25519::sig_t::from_string(pb_sig.signature());
           tx.signatures.push_back(sig);
         }
 

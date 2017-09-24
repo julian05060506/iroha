@@ -59,10 +59,10 @@ TEST(Signature, generatedByAndroid) {
   std::vector<uint8_t> message(message_.begin(), message_.end());
 
   auto pubkey_ = base64_decode(public_key_b64);
-  auto pubkey = stringToBlob<iroha::pubkey_t::size()>(
+  auto pubkey = stringToBlob<iroha::ed25519::pubkey_t::size()>(
       std::string{pubkey_.begin(), pubkey_.end()});
 
-  iroha::sig_t signature;
+  iroha::ed25519::sig_t signature;
   std::vector<uint8_t> signature_v = base64_decode(signature_b64);
   ASSERT_EQ(signature.size(), signature_v.size());
   std::copy(signature_v.begin(), signature_v.end(), signature.begin());
@@ -82,10 +82,10 @@ TEST(Signature, generatedByiOS) {
   std::vector<uint8_t> message(message_.begin(), message_.end());
 
   auto pubkey_ = base64_decode(public_key_b64);
-  auto pubkey = stringToBlob<iroha::pubkey_t::size()>(
+  auto pubkey = stringToBlob<iroha::ed25519::pubkey_t::size()>(
       std::string{pubkey_.begin(), pubkey_.end()});
 
-  iroha::sig_t signature;
+  iroha::ed25519::sig_t signature;
   std::vector<uint8_t> signature_v = base64_decode(signature_b64);
   ASSERT_EQ(signature.size(), signature_v.size());
   std::copy(signature_v.begin(), signature_v.end(), signature.begin());
@@ -107,10 +107,10 @@ TEST(Signature, generatedByGO) {
   std::vector<uint8_t> message(message_.begin(), message_.end());
 
   auto pubkey_ = base64_decode(public_key_b64);
-  auto pubkey = stringToBlob<iroha::pubkey_t::size()>(
+  auto pubkey = stringToBlob<iroha::ed25519::pubkey_t::size()>(
       std::string{pubkey_.begin(), pubkey_.end()});
 
-  iroha::sig_t signature;
+  iroha::ed25519::sig_t signature;
   std::vector<uint8_t> signature_v = base64_decode(signature_b64);
   ASSERT_EQ(signature.size(), signature_v.size());
   std::copy(signature_v.begin(), signature_v.end(), signature.begin());

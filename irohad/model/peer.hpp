@@ -34,7 +34,7 @@ namespace iroha {
       /**
        * Public key of peer
        */
-      pubkey_t pubkey;
+      ed25519::pubkey_t pubkey;
 
       using KeyType = decltype(pubkey);
 

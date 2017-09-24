@@ -14,10 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+#include <generator/generator.hpp>
 #include "module/irohad/ametsuchi/ametsuchi_mocks.hpp"
 #include "module/irohad/network/network_mocks.hpp"
 #include "module/irohad/validation/validation_mocks.hpp"
 
+#include "crypto/crypto.hpp"
 #include "main/server_runner.hpp"
 #include "torii/command_service.hpp"
 #include "torii/processor/query_processor_impl.hpp"
@@ -54,12 +56,10 @@ class ToriiQueriesTest : public testing::Test {
       rxcpp::subjects::subject<iroha::model::Proposal> prop_notifier;
       rxcpp::subjects::subject<Commit> commit_notifier;
 
-      EXPECT_CALL(*pcsMock,
-                  on_proposal())
+      EXPECT_CALL(*pcsMock, on_proposal())
           .WillRepeatedly(Return(prop_notifier.get_observable()));
 
-      EXPECT_CALL(*pcsMock,
-                  on_commit())
+      EXPECT_CALL(*pcsMock, on_commit())
           .WillRepeatedly(Return(commit_notifier.get_observable()));
 
       auto tx_processor =
@@ -109,10 +109,10 @@ class ToriiQueriesTest : public testing::Test {
   std::shared_ptr<MockWsvQuery> wsv_query;
   std::shared_ptr<MockBlockQuery> block_query;
 
-  // just random hex strings
-  const std::string pubkey_test = "680ded3260f417635c4b19e77b2cf7fc";
+  // just random hex strings so don't care about same seed every time
+  const std::string pubkey_test = generator::random_blob<16>(0).to_hexstring();
   const std::string signature_test =
-      "781f3b66cabeb600f86d80e045564f59fbc1f07c1f4379d50edf52e934305439";
+      generator::random_blob<32>(0).to_hexstring();
 };
 
 /**
@@ -302,7 +302,8 @@ TEST_F(ToriiQueriesTest, FindAccountAssetWhenValid) {
   asset.precision = 2;
 
   EXPECT_CALL(*wsv_query, getAccount("accountA")).WillOnce(Return(account));
-  EXPECT_CALL(*wsv_query, getAccountAsset(_, _)).WillOnce(Return(account_asset));
+  EXPECT_CALL(*wsv_query, getAccountAsset(_, _))
+      .WillOnce(Return(account_asset));
 
   iroha::protocol::QueryResponse response;
 

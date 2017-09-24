@@ -281,8 +281,6 @@ namespace iroha {
     };
   }
 
-  using namespace ed25519; // to use sig_t everywhere instead of ed25519::sig_t
-
   // timestamps
   using ts64_t = uint64_t;
   using ts32_t = uint32_t;

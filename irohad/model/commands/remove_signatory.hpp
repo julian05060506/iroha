@@ -38,14 +38,14 @@ namespace iroha {
        * Note: This public key must be attach to account.
        * There must be at least two signatories to perform this operation.
        */
-      pubkey_t pubkey;
+      ed25519::pubkey_t pubkey;
 
       bool operator==(const Command& command) const override;
       bool operator!=(const Command& command) const override;
 
       RemoveSignatory() {}
 
-      RemoveSignatory(std::string account_id, pubkey_t pubkey)
+      RemoveSignatory(std::string account_id, ed25519::pubkey_t pubkey)
           : account_id(account_id), pubkey(pubkey) {}
     };
   }  // namespace model

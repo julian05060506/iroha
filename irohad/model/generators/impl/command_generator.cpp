@@ -34,6 +34,8 @@ namespace iroha {
   namespace model {
     namespace generators {
 
+      using namespace ed25519;
+
       std::shared_ptr<Command> CommandGenerator::generateAddPeer(
           const std::string &address, const pubkey_t &key) {
         return generateCommand<AddPeer>(key, address);
@@ -77,7 +79,8 @@ namespace iroha {
       }
 
       std::shared_ptr<Command> CommandGenerator::generateAddAssetQuantity(
-          const std::string &account_id, const std::string &asset_id, const Amount &amount) {
+          const std::string &account_id, const std::string &asset_id,
+          const Amount &amount) {
         return generateCommand<AddAssetQuantity>(account_id, asset_id, amount);
       }
 
@@ -87,12 +90,14 @@ namespace iroha {
       }
 
       std::shared_ptr<Command> CommandGenerator::generateSetPermissions(
-          const std::string &account_id, const Account::Permissions &permissions) {
+          const std::string &account_id,
+          const Account::Permissions &permissions) {
         return generateCommand<SetAccountPermissions>(account_id, permissions);
       }
 
       std::shared_ptr<Command> CommandGenerator::generateSubtractAssetQuantity(
-          const std::string &account_id, const std::string &asset_id, const Amount &amount) {
+          const std::string &account_id, const std::string &asset_id,
+          const Amount &amount) {
         // TODO: implement
         return nullptr;
       }

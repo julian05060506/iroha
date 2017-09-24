@@ -40,7 +40,7 @@ namespace iroha {
       /**
        * Signatory of account
        */
-      pubkey_t pubkey;
+      ed25519::pubkey_t pubkey;
 
       bool operator==(const Command& command) const override;
       bool operator!=(const Command& command) const override;
@@ -48,7 +48,7 @@ namespace iroha {
       CreateAccount() {}
 
       CreateAccount(std::string account_name, std::string domain_id,
-                    pubkey_t pubkey)
+                    ed25519::pubkey_t pubkey)
           : account_name(account_name), domain_id(domain_id), pubkey(pubkey) {}
     };
   }  // namespace model

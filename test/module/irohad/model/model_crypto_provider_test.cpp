@@ -29,8 +29,9 @@ iroha::model::Transaction create_transaction() {
   return tx;
 }
 
-iroha::model::Transaction sign(iroha::model::Transaction &tx, iroha::privkey_t privkey,
-                 iroha::pubkey_t pubkey) {
+iroha::model::Transaction sign(iroha::model::Transaction &tx,
+                               iroha::ed25519::privkey_t privkey,
+                               iroha::ed25519::pubkey_t pubkey) {
   auto tx_hash = iroha::hash(tx);
 
   auto sign = iroha::sign(tx_hash.data(), tx_hash.size(), pubkey, privkey);

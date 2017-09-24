@@ -29,7 +29,7 @@ namespace iroha {
      * Provide user's intent for adding peer to current network
      */
     struct AddPeer : public Command {
-      pubkey_t peer_key;
+      ed25519::pubkey_t peer_key;
 
       std::string address;
 
@@ -38,7 +38,7 @@ namespace iroha {
 
       AddPeer() {}
 
-      AddPeer(pubkey_t peer_key, std::string address)
+      AddPeer(ed25519::pubkey_t peer_key, std::string address)
           : peer_key(peer_key), address(address) {}
     };
   }  // namespace model

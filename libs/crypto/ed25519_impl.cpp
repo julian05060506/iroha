@@ -25,35 +25,35 @@ namespace iroha {
   /**
    * Sign the message
    */
-  sig_t sign(const uint8_t *msg, size_t msgsize, const pubkey_t &pub,
-             const privkey_t &priv) {
-    sig_t sig;
+  ed25519::sig_t sign(const uint8_t *msg, size_t msgsize,
+                      const ed25519::pubkey_t &pub,
+                      const ed25519::privkey_t &priv) {
+    ed25519::sig_t sig;
     ed25519_sign(sig.data(), msg, msgsize, pub.data(), priv.data());
     return sig;
   }
 
-  sig_t sign(const std::string &msg, const pubkey_t &pub,
-             const privkey_t &priv) {
-    sig_t sig;
+  ed25519::sig_t sign(const std::string &msg, const ed25519::pubkey_t &pub,
+                      const ed25519::privkey_t &priv) {
+    ed25519::sig_t sig;
     ed25519_sign(sig.data(), (uint8_t *)msg.data(), msg.size(), pub.data(),
                  priv.data());
     return sig;
   }
 
-
   /**
    * Verify signature
    */
-  bool verify(const uint8_t *msg, size_t msgsize, const pubkey_t &pub,
-              const sig_t &sig) {
+  bool verify(const uint8_t *msg, size_t msgsize, const ed25519::pubkey_t &pub,
+              const ed25519::sig_t &sig) {
     return 1 == ed25519_verify(sig.data(), msg, msgsize, pub.data());
   }
 
-  bool verify(const std::string &msg, const pubkey_t &pub, const sig_t &sig) {
+  bool verify(const std::string &msg, const ed25519::pubkey_t &pub,
+              const ed25519::sig_t &sig) {
     return 1 == ed25519_verify(sig.data(), (uint8_t *)msg.data(), msg.size(),
                                pub.data());
   }
-
 
   /**
    * Generate seed
@@ -76,14 +76,14 @@ namespace iroha {
   /**
    * Create keypair
    */
-  keypair_t create_keypair(blob_t<32> seed) {
-    pubkey_t pub;
-    privkey_t priv;
+  ed25519::keypair_t create_keypair(blob_t<32> seed) {
+    ed25519::pubkey_t pub;
+    ed25519::privkey_t priv;
 
     ed25519_create_keypair(pub.data(), priv.data(), seed.data());
 
-    return keypair_t{.pubkey = pub, .privkey = priv};
+    return ed25519::keypair_t{.pubkey = pub, .privkey = priv};
   }
 
-  keypair_t create_keypair() { return create_keypair(create_seed()); }
+  ed25519::keypair_t create_keypair() { return create_keypair(create_seed()); }
 }
